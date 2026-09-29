@@ -8,6 +8,7 @@ fn test_generate_extension_fields_roundtrip() {
         "lora_backfill_paths": {"adapter@1": "/shared/adapter"},
         "return_hidden_states": true,
         "return_routed_experts": true,
+        "sampling_logprobs_mode": "support",
         "routed_experts_start_len": 10,
         "return_prompt_token_ids": true,
         "require_reasoning": true,
@@ -24,6 +25,7 @@ fn test_generate_extension_fields_roundtrip() {
         serde_json::from_value(json_with_extensions).expect("should deserialize");
     assert!(req.return_hidden_states);
     assert!(req.return_routed_experts);
+    assert_eq!(req.sampling_logprobs_mode.as_deref(), Some("support"));
     assert_eq!(req.routed_experts_start_len, 10);
     assert!(req.return_prompt_token_ids);
     assert!(req.require_reasoning);
@@ -41,6 +43,7 @@ fn test_generate_extension_fields_roundtrip() {
     );
     assert_eq!(serialized["return_hidden_states"], true);
     assert_eq!(serialized["return_routed_experts"], true);
+    assert_eq!(serialized["sampling_logprobs_mode"], "support");
     assert_eq!(serialized["routed_experts_start_len"], 10);
     assert_eq!(serialized["return_prompt_token_ids"], true);
     assert_eq!(serialized["require_reasoning"], true);
@@ -62,6 +65,7 @@ fn test_generate_extension_fields_defaults() {
     let req: GenerateRequest = serde_json::from_value(json_minimal).expect("should deserialize");
     assert!(!req.return_hidden_states);
     assert!(!req.return_routed_experts);
+    assert!(req.sampling_logprobs_mode.is_none());
     assert_eq!(req.routed_experts_start_len, 0);
     assert!(!req.return_prompt_token_ids);
     assert!(!req.require_reasoning);
@@ -91,6 +95,7 @@ fn test_generate_optional_fields_omitted_when_none() {
         "max_dynamic_patch",
         "min_dynamic_patch",
         "lora_backfill_paths",
+        "sampling_logprobs_mode",
     ];
     for field in omitted {
         assert!(

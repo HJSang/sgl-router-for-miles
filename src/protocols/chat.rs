@@ -264,9 +264,10 @@ pub struct ChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tools: Option<Vec<Tool>>,
 
-    /// An integer between 0 and 20 specifying the number of most likely tokens to return
+    /// An integer between 0 and 128 specifying the number of most likely tokens to return.
+    /// OpenAI caps this at 20; SGLang accepts up to 128, its PD logprob metadata capacity.
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[validate(range(min = 0, max = 20))]
+    #[validate(range(min = 0, max = 128))]
     pub top_logprobs: Option<u32>,
 
     /// An alternative to sampling with temperature
@@ -363,6 +364,10 @@ pub struct ChatCompletionRequest {
     /// Return token sampling masks in response metadata (SGLang extension)
     #[serde(default)]
     pub return_sampling_mask: bool,
+
+    /// Sampling log-prob mode, "selected" or "support" (SGLang extension)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sampling_logprobs_mode: Option<String>,
 
     /// Absolute start position for returned routed experts (SGLang extension)
     #[serde(default)]
