@@ -579,6 +579,7 @@ fn test_sglang_extension_fields_roundtrip() {
         "return_hidden_states": true,
         "return_routed_experts": true,
         "return_sampling_mask": true,
+        "sampling_logprobs_mode": "support",
         "routed_experts_start_len": 10,
         "return_cached_tokens_details": true,
         "return_prompt_token_ids": true,
@@ -606,6 +607,7 @@ fn test_sglang_extension_fields_roundtrip() {
     assert!(req.return_hidden_states);
     assert!(req.return_routed_experts);
     assert!(req.return_sampling_mask);
+    assert_eq!(req.sampling_logprobs_mode.as_deref(), Some("support"));
     assert_eq!(req.routed_experts_start_len, 10);
     assert!(req.return_cached_tokens_details);
     assert!(req.return_prompt_token_ids);
@@ -622,6 +624,7 @@ fn test_sglang_extension_fields_roundtrip() {
     assert_eq!(serialized["return_hidden_states"], true);
     assert_eq!(serialized["return_routed_experts"], true);
     assert_eq!(serialized["return_sampling_mask"], true);
+    assert_eq!(serialized["sampling_logprobs_mode"], "support");
     assert_eq!(serialized["routed_experts_start_len"], 10);
     assert_eq!(serialized["return_cached_tokens_details"], true);
     assert_eq!(serialized["return_prompt_token_ids"], true);
@@ -656,6 +659,7 @@ fn test_sglang_extension_fields_default_values() {
     assert!(!req.return_hidden_states);
     assert!(!req.return_routed_experts);
     assert!(!req.return_sampling_mask);
+    assert!(req.sampling_logprobs_mode.is_none());
     assert_eq!(req.routed_experts_start_len, 0);
     assert!(!req.return_cached_tokens_details);
     assert!(!req.return_prompt_token_ids);
@@ -695,6 +699,7 @@ fn test_sglang_optional_fields_omitted_when_none() {
         "max_dynamic_patch", "min_dynamic_patch", "rid", "extra_key", "cache_salt",
         "priority", "bootstrap_host", "bootstrap_port", "bootstrap_room",
         "routed_dp_rank", "disagg_prefill_dp_rank", "data_parallel_rank",
+        "sampling_logprobs_mode",
     ];
     for field in omitted {
         assert!(
@@ -702,5 +707,20 @@ fn test_sglang_optional_fields_omitted_when_none() {
             "{} should be omitted when None",
             field
         );
+    }
+}
+
+#[test]
+fn test_top_logprobs_accepts_up_to_128() {
+    for (count, valid) in [(20, true), (21, true), (128, true), (129, false)] {
+        let req: ChatCompletionRequest = serde_json::from_value(json!({
+            "model": "test-model",
+            "messages": [{"role": "user", "content": "hello"}],
+            "logprobs": true,
+            "top_logprobs": count
+        }))
+        .expect("should deserialize");
+        assert_eq!(req.validate().is_ok(), valid, "top_logprobs={count}");
+        assert_eq!(serde_json::to_value(&req).unwrap()["top_logprobs"], count);
     }
 }

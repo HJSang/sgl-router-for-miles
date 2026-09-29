@@ -618,6 +618,7 @@ async fn test_unsupported_endpoints() {
         return_hidden_states: false,
         return_routed_experts: false,
         return_sampling_mask: None,
+        sampling_logprobs_mode: None,
         return_indexer_topk: false,
         routed_experts_start_len: 0,
         return_prompt_token_ids: false,

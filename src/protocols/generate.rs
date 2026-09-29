@@ -98,6 +98,10 @@ pub struct GenerateRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_sampling_mask: Option<Value>,
 
+    /// Sampling log-prob mode, "selected" or "support"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sampling_logprobs_mode: Option<String>,
+
     /// Absolute start position for returned routed experts
     #[serde(default)]
     pub routed_experts_start_len: i32,
