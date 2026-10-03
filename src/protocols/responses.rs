@@ -556,9 +556,10 @@ pub struct ResponsesRequest {
     #[validate(custom(function = "validate_response_tools"))]
     pub tools: Option<Vec<ResponseTool>>,
 
-    /// Number of top logprobs to return
+    /// Number of top logprobs to return, between 0 and 128.
+    /// OpenAI caps this at 20; SGLang accepts up to 128, its PD logprob metadata capacity.
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[validate(range(min = 0, max = 20))]
+    #[validate(range(min = 0, max = 128))]
     pub top_logprobs: Option<u32>,
 
     /// Top-p sampling parameter
