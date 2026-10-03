@@ -313,7 +313,7 @@ fn test_validate_presence_penalty_range() {
 #[test]
 fn test_validate_top_logprobs_range() {
     // Valid values
-    for val in [0, 1, 10, 20] {
+    for val in [0, 1, 10, 20, 21, 128] {
         let request = ResponsesRequest {
             input: ResponseInput::Text("test".to_string()),
             top_logprobs: Some(val),
@@ -328,7 +328,7 @@ fn test_validate_top_logprobs_range() {
     }
 
     // Invalid values
-    for val in [21, 30, 100] {
+    for val in [129, 200] {
         let request = ResponsesRequest {
             input: ResponseInput::Text("test".to_string()),
             top_logprobs: Some(val),
